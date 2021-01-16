@@ -1,0 +1,32 @@
+const Fs = FileStream;
+const Js = org.jsoup.Jsoup;
+
+var word = {};
+var start = 1;
+
+var url = "https://stdict.korean.go.kr/api/search.do?certkey_no=2045&key=603F8F9FA7D61D257BDFBB475C7AC7D7&type_search=search&target=8&num=10&pos=0&type1=word&q=";
+var site = [];
+
+
+function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+
+   if (msg.startsWith ("//단어 ") && start == 1) {
+     word = msg.substr (5);
+     site = url+word;
+     
+     //replier.reply (site);
+     
+     real = Js.connect (site).ignoreContentType(true).get ().select ("definition");
+     real1 = real.toString ();
+          
+     if (real == "") {
+       replier.reply ("국립국어원에 등재되지 않은 단어입니다.");
+     } else {
+       //replier.reply (real);
+       replier.reply (real1);
+     }
+     
+   } else {
+     
+   }
+}
