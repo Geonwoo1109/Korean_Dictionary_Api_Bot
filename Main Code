@@ -1,32 +1,48 @@
-const Fs = FileStream;
+
 const Js = org.jsoup.Jsoup;
+const allsee = "\u200d".repeat(500);
+const n = "\n";
+const nn = "\n".repeat(2);
+var Final = [];
 
-var word = {};
-var start = 1;
-
-var url = "https://stdict.korean.go.kr/api/search.do?certkey_no=2045&key=603F8F9FA7D61D257BDFBB475C7AC7D7&type_search=search&target=8&num=10&pos=0&type1=word&q=";
-var site = [];
+var url = "https://stdict.korean.go.kr/api/search.do?certkey_no=2045&key=603F8F9FA7D61D257BDFBB475C7AC7D7&type_search=search&target=8&num=10&q=";
 
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
-
-   if (msg.startsWith ("//단어 ") && start == 1) {
-     word = msg.substr (5);
-     site = url+word;
-     
-     //replier.reply (site);
-     
-     real = Js.connect (site).ignoreContentType(true).get ().select ("definition");
-     real1 = real.toString ();
-          
-     if (real == "") {
-       replier.reply ("국립국어원에 등재되지 않은 단어입니다.");
-     } else {
-       //replier.reply (real);
-       replier.reply (real1);
-     }
-     
-   } else {
-     
-   }
+try {
+  if (msg.startsWith (".사전 ")) {
+     var I_main = JSON.parse(Utils.xmlToJson(String(Js.connect(url+msg.substr(4)).get())))["channel"];
+    /*
+    replier.reply(JSON.stringify(I_main,null,4));
+    replier.reply(I_main["total"]);*/
+    
+    if (I_main["total"] == 1) {
+      
+      Final.push(
+        I_main["item"]["word"]+" 「"+I_main["item"]["pos"] +"」 ("+ I_main["item"]["sense"]["type"] +")"
+        +n +"정의: "+I_main["item"]["sense"]["definition"]
+        +n +"국립국어원 바로가기 => " + I_main["item"]["sense"]["link"] +n
+      );
+    } else {
+      for (i=0; i<I_main["total"]; i++) {
+        Final.push(
+          I_main["item"][i]["word"]+String(i+1)+" 「"+I_main["item"][i]["pos"] +"」 ("+ I_main["item"][i]["sense"]["type"] +")"
+          +n +"정의: "+I_main["item"][i]["sense"]["definition"]
+          +n +I_main["item"][i]["sense"]["link"] +n
+        );
+      }
+    }
+    
+    replier.reply(
+       "<\""+msg.substr(4)+"\" 검색결과>" +allsee +n
+      +n+"요청 단어: " + msg.substr(4)
+      +n+"단어 뜻 개수: " + I_main["total"]
+      +nn+Final.join(n)
+      +nn+"위 결과는 국립국어원의 정보를 바탕으로 출력됩니다."
+      +n+"국립국어원 바로가기: "+ I_main["link"]
+   );
+      
+    Final = [];
+  }
+} catch(e) {replier.reply(e);}
 }
