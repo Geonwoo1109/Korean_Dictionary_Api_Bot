@@ -3,9 +3,10 @@ const Js = org.jsoup.Jsoup;
 const allsee = "\u200d".repeat(500);
 const n = "\n";
 const nn = "\n".repeat(2);
+const Key = ""; // 국립국어원 API
 var Final = [];
 
-var url = "https://stdict.korean.go.kr/api/search.do?certkey_no=2045&key=603F8F9FA7D61D257BDFBB475C7AC7D7&type_search=search&target=8&num=10&q=";
+var url = "https://stdict.korean.go.kr/api/search.do?certkey_no=2045&key="+Key+"&type_search=search&target=8&num=100&q=";
 
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
@@ -14,8 +15,8 @@ try {
      var I_main = JSON.parse(Utils.xmlToJson(String(Js.connect(url+msg.substr(4)).get())))["channel"];
     /*
     replier.reply(JSON.stringify(I_main,null,4));
-    replier.reply(I_main["total"]);*/
-    
+    replier.reply(I_main["total"]);
+    */
     if (I_main["total"] == 1) {
       
       Final.push(
@@ -44,5 +45,8 @@ try {
       
     Final = [];
   }
-} catch(e) {replier.reply(e);}
+} catch(e) {
+  replier.reply(e);
+  Final = [];
+  }
 }
